@@ -19,14 +19,14 @@ class ResponseFormatter
     }
 
     public static function error(
-        string $message = 'Error',
+        string|array $message = 'Error',
         mixed $errors = null,
         int $code = 400
     ): JsonResponse {
         return response()->json([
             'success' => false,
-            'message' => $message,
-            'errors' => $errors,
+            'message' => is_array($message) ? null : $message,
+            'errors' => is_array($message) ? $message : $errors,
         ], $code);
     }
 }
