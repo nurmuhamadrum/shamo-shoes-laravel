@@ -11,7 +11,7 @@ class Transaction extends Model
     use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'users_id',
+        'user_id',
         'address',
         'payment',
         'total_price',
@@ -20,7 +20,7 @@ class Transaction extends Model
     ];
 
     public function users(){
-        return $this->belongsTo(User::class, 'user_id', 'id');
+        return $this->belongsTo(User::class, 'users_id', 'id');
     }
 
     public function items(){
