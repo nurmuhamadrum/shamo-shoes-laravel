@@ -59,38 +59,30 @@ class UserController extends Controller
 
     public function login(Request $request)
     {
-        try {
-            $request->validate([
-                'email' => 'email|required',
-                'password' => 'required',
-            ]);
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-            $credential = request(['email', 'password']);
+        $credentials = $request->only('email', 'password');
 
-            if (!Auth::attempt($credential)) {
-                return ResponseFormatter::error([
-                    'message' => 'Unauthorized'
-                ], 'Authentication Failed', 500);
-            }
-
-            $user = User::where('email', $request->email)->first();
-
-            if (! Hash::check($request->password, $user->password, [])) {
-                throw new \Exception('Invalid Credential');
-            }
-
-            $tokenResult = $user->createToken('authToken')->plainTextToken;
-            return ResponseFormatter::success([
-                'access_token' => $tokenResult,
-                'token_type' => 'Bearer',
-                'user' => $user,
-            ], 'Authenticated');
-        } catch (Exception $error) {
-            return ResponseFormatter::error([
-                'message' => 'Something went wrong',
-                'error' => $error,
-            ], 'Authentication Failed', 500);
+        if (!Auth::attempt($credentials)) {
+            return ResponseFormatter::error(
+                'Invalid credentials',
+                null,
+                401
+            );
         }
+
+        $user = Auth::user();
+
+        $token = $user->createToken('authToken')->plainTextToken;
+
+        return ResponseFormatter::success([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user,
+        ], 'Authenticated');
     }
 
     public function fetch(Request $request)
